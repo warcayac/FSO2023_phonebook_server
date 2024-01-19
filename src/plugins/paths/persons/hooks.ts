@@ -7,7 +7,7 @@ export const paramIdParser = {
   params: t.Object({
     id: t.String({ 
       pattern: /^\d+$/.source, 
-      maxLength: 5,
+      // maxLength: 5,
     })
   }),
   error: () => httpResponse.BAD_REQUEST(),
