@@ -9,21 +9,15 @@ GET http://localhost:3001/info HTTP/1.1
 
 
 ### Get one person: OK
-GET http://localhost:3001/api/persons/3 HTTP/1.1
+GET http://localhost:3001/api/persons/65abfcfefd675d6b9ebfcec6 HTTP/1.1
 ### Get one person: not found
 GET http://localhost:3001/api/persons/30 HTTP/1.1
-### Get one person: bad parameter
-GET http://localhost:3001/api/persons/3e4 HTTP/1.1
 
 
 ### Delete one person: OK
-DELETE http://localhost:3001/api/persons/3 HTTP/1.1
+DELETE http://localhost:3001/api/persons/65b2f0f7cf338eaa472be85a HTTP/1.1
 ### Delete one person: not found
 DELETE http://localhost:3001/api/persons/30 HTTP/1.1
-### Delete one person: bad request
-DELETE http://localhost:3001/api/persons/3e4 HTTP/1.1
-### Delete one person: NOT FOUND
-DELETE http://localhost:3001/api/people/3 HTTP/1.1
 
 
 ### Add one person: OK
@@ -55,4 +49,59 @@ Content-Type: application/json
 
 {
   "name": "William AC"
+}
+### Add one person: OK
+POST http://localhost:3001/api/persons HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "William AC",
+  "number": "123-7890",
+  "anykey": 6664566
+}
+### Add one person: OK
+POST http://localhost:3001/api/persons HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Wi",
+  "number": "123-7890"
+}
+
+
+### Add one person: OK
+PUT http://localhost:3001/api/persons/65b3ee199020a8c36d5fb5b1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "number": "777-55555"
+}
+### Add one person: value malformatted
+PUT http://localhost:3001/api/persons/30 HTTP/1.1
+Content-Type: application/json
+
+{
+  "number": "123"
+}
+### Add one person: data malformed
+PUT http://localhost:3001/api/persons/65b3ee199020a8c36d5fb5b1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "number": 1234567
+}
+### Add one person: property required
+PUT http://localhost:3001/api/persons/65b3ee199020a8c36d5fb5b1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "William AC"
+}
+### Add one person: property required
+PUT http://localhost:3001/api/persons/65b3ee199020a8c36d5fb5b1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "otros": "xyz",
+  "number": "555-7890"
 }

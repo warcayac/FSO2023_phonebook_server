@@ -1,59 +1,71 @@
-import persons from "../../../data/db";
-import { httpResponse } from "../../../utils/constants";
-import { TPerson } from "../../../utils/types";
+import { Person, TPerson } from "../../../models/mongodb/personsSchema";
+import { httpResponse } from "../../../@warcayac/const-elysia";
 
 
-const _person = (id: number) => persons.find(n => n.id === id);
-const _personIdx = (id: number) => persons.findIndex(n => n.id === id);
-
-function generateNewId() {
-  if (persons.length === 0) return 0;
-
-  const genId = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
-  const idList = persons.map<number>(e => e.id!);
-  
-  let newId : number;
-  do {
-    newId = genId();
-  } while (idList.some(e => e === newId))
-
-  return newId;
+ /* ------------------------------------------------------------------------------------------ */
+ export async function getPersons() {
+  try {
+    return httpResponse[200]({data: await Person.find()})
+  } catch (error) {
+    return httpResponse.INTERNAL_ERROR();
+  }
 }
 
-export function getPersons() {
-  return httpResponse[200]({data: persons})
-}
-
-export function getOnePerson(id: string) {
-  const result = _person(Number(id));
+ /* ------------------------------------------------------------------------------------------ */
+ export async function getOnePerson(id: string) {
+  const result = await Person.findById(id);
   
-  return result 
+  return result !== null
     ? httpResponse[200]({data: [result]})
     : httpResponse.NOT_FOUND()
   ;
 }
 
-export function deleteOnePerson(id: string) {
-  const index = _personIdx(Number(id));
+ /* ------------------------------------------------------------------------------------------ */
+ export async function deleteOnePerson(id: string) {
+  const response = await Person.findByIdAndDelete(id);
   
-  if (index >= 0) {
-    persons.splice(index, 1);
-    return httpResponse[200]({updatedAt: new Date().toUTCString()});
-  }
-
-  return httpResponse.NOT_FOUND()
+  return response !== null
+    ? httpResponse.SUCCESS()
+    : httpResponse.NOT_FOUND()
+  ;
 }
 
-export function addOnePerson(body: TPerson) {
+ /* ------------------------------------------------------------------------------------------ */
+ export async function addOnePerson(body: TPerson) {
   body.name = body.name.trim();
+  const name = body.name.toLowerCase();
+  const person = await Person
+    .findOne({ name })
+    .collation({locale:'en', strength: 2})
+    .exec()
+  ;
   
-  if (persons.some(p => p.name.toLowerCase() === body.name.toLowerCase())) {
+  if (person !== null) {
     return httpResponse[400]('Name must be unique')
   }
 
-  const newPerson : TPerson = {...body, id: generateNewId()};
-  const currentTime = new Date().toUTCString();
-  persons.push(newPerson);
+  const newPerson = new Person(body);
   
-  return httpResponse[200]({createdAt: currentTime, data: [newPerson]});
+  // these lines are innecesary because the schema already has a validator and the error is handled by the hook
+  // const error = newPerson.validateSync();
+  // if (error !== null && error.errors.number) return httpResponse.BAD_REQUEST(error.errors.number.message);
+
+  const response = await newPerson.save();
+  
+  return httpResponse[200]({data: [response]});
+}
+
+ /* ------------------------------------------------------------------------------------------ */
+ export async function updateOnePersonNumber(id: string, number: string) {
+  const response = await Person.findByIdAndUpdate(
+    id, 
+    {number}, 
+    {new: true, runValidators: true}
+  );
+
+  return response !== null
+    ? httpResponse.OK({data: [response]})
+    : httpResponse.NOT_FOUND()
+  ;
 }

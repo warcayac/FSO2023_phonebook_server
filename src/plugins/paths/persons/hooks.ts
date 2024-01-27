@@ -1,23 +1,39 @@
 import { t } from "elysia";
-import { TJMap } from "../../../utils/types";
-import { httpResponse } from "../../../utils/constants";
+
+import { errorMsg, parsers } from "../../../@warcayac/const-elysia";
 
 
-export const paramIdParser = {
-  params: t.Object({
-    id: t.String({ 
-      pattern: /^\d+$/.source, 
-      // maxLength: 5,
-    })
-  }),
-  error: () => httpResponse.BAD_REQUEST(),
+const numberFormat = t.String({pattern: /^\d{2,3}-\d{3,}$/.source, error: 'Number malformatted'})
+
+/* ------------------------------------------------------------------------------------------ */
+ export const paramIdParser = parsers.paramObjectId
+
+ /* ------------------------------------------------------------------------------------------ */
+ export const bodyPersonParser = {
+  body: t.Object(
+    {
+      name: t.String(),
+      number: numberFormat,
+    },
+    {
+      error: errorMsg.MISSING_PROPERTY
+    }
+  ),
 }
 
-export const bodyPersonParser = {
-  body: t.Object({
-    name: t.String(),
-    number: t.String(),
-    id: t.Optional(t.Number())
-  }),
-  error: (details: TJMap) => httpResponse[400](JSON.parse(details.error.message)['message'])
+ /* ------------------------------------------------------------------------------------------ */
+ export const idAndBodyPersonParser = {
+  ...parsers.paramObjectId,
+  body: t.Object(
+    {
+      number: numberFormat,
+      name: t.Optional(t.String()),
+      id: t.Optional(t.String()),
+    },
+    {
+      error: errorMsg.MISSING_PROPERTY
+    }
+  ),
 }
+
+ /* ------------------------------------------------------------------------------------------ */

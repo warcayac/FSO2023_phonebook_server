@@ -11,7 +11,8 @@ export default class WInfo {
     public readonly path: string,
     public readonly start_time: bigint,
     public readonly stamp: string,
-    public showPostBody : boolean = false,
+    public showPostBody: boolean = false,
+    public steps: string[],
   ) {}
   /* ------------------------------------------------------------------------------------------ */
   toString(): string {

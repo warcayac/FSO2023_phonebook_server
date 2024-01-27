@@ -1,12 +1,13 @@
-import persons from "./data/db";
-import { httpResponse } from "./utils/constants";
+import { Person } from "./models/mongodb/personsSchema";
+import { httpResponse } from "./@warcayac/const-elysia";
 
 
-export function getInfo() {
+export async function getInfo() {
   const currentTime = new Date();
+  const count = await Person.countDocuments();
 
   return httpResponse[200]({
-    message: `Phonebook has info ${persons.length} people`,
+    message: `Phonebook has info of ${count} people`,
     updatedAt: currentTime.toUTCString(),
   });
 }
